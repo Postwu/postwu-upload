@@ -1,0 +1,68 @@
+<!-- This pulls Uppy from our CDN -->
+<!-- For smaller self-hosted bundles, install Uppy and plugins manually: -->
+<!-- npm i --save @uppy/core @uppy/dashboard @uppy/remote-sources @uppy/transloadit ... -->
+<link
+  href="https://releases.transloadit.com/uppy/v3.21.0/uppy.min.css"
+  rel="stylesheet"
+/>
+<div id="uppy"></div>
+
+<label>图片地址</label>
+<input type="text" name="imageurl">
+
+<script type="module">
+  import {
+    Uppy,
+    Dashboard,
+    ImageEditor,
+    RemoteSources,
+    Transloadit,
+  } from "https://releases.transloadit.com/uppy/v3.7.0/uppy.min.mjs";
+  const uppy = new Uppy({
+      autoProceed: true,
+      restrictions: { maxFileSize: 3145728, // Limit size to 3 MB
+      maxNumberOfFiles: 1, 
+      allowedFileTypes:['image/*'], },
+  })
+    .use(Transloadit, {
+      waitForEncoding: true,
+      alwaysRunAssembly: true,
+      params: {
+        // To avoid tampering use signatures:
+        // https://transloadit.com/docs/api/#authentication
+        auth: {
+          key: '04f6678e2a7b4e76975b54a0d362dfe6',
+        },
+        template_id: '55a50be2692b4f7a94096deacb964c4a',
+      },
+    })
+    .use(Dashboard, { 
+        target: '#uppy', 
+        inline: true,
+        showProgressDetails: true,
+        doneButtonHandler: null,
+        showRemoveButtonAfterComplete: true,
+        hideProgressAfterFinish: true,
+        height: 400,
+        })
+    .use(ImageEditor, { target: Dashboard })
+    .use(RemoteSources, {
+      companionUrl: 'https://api2.transloadit.com/companion',
+          sources: [
+                      "Url"
+                    ],
+    })
+    .on('complete', ({ transloadit }) => {
+      // Due to `waitForEncoding: true` this is fired after encoding is done.
+      // Alternatively, set `waitForEncoding` to `false` and provide a `notify_url`
+      console.log(transloadit) // Array of Assembly Statuses
+      transloadit.forEach((assembly) => {
+        console.log(assembly.results) // Array of all encoding results
+        //console.log(assembly.results.compress_image[0].ssl_url) // Array of all encoding results
+        document.querySelector('input[name="imageurl"]').value = assembly.results.convert_image_webp[0].url.replace("postwu.s3-cn-east-2.qiniucs.com","images.postwu.com")
+      })
+    })
+    .on('error', (error) => {
+      console.error(error)
+    })
+</script>
