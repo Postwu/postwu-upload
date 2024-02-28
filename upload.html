@@ -58,8 +58,8 @@
       console.log(transloadit) // Array of Assembly Statuses
       transloadit.forEach((assembly) => {
         console.log(assembly.results) // Array of all encoding results
-        //console.log(assembly.results.compress_image[0].ssl_url) // Array of all encoding results
-        document.querySelector('input[name="imageurl"]').value = assembly.results.convert_image_webp[0].url.replace("postwu.s3-cn-east-2.qiniucs.com","images.postwu.com")
+        //console.log(assembly.results.webp_converted[0].ssl_url) // Array of all encoding results
+        document.querySelector('input[name="imageurl"]').value = assembly.results.webp_converted[0].url.replace("postwu.s3-cn-east-2.qiniucs.com","images.postwu.com")
       })
     })
     .on('error', (error) => {
